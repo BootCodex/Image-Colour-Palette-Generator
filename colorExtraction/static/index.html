@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Image Color Extractor</title>
+  </head>
+  <body>
+    <h2>Upload Image</h2>
+    <form id="upload-form">
+      <input type="file" name="file" id="file-input" required />
+      <button type="submit">Upload</button>
+    </form>
+    <div id="colors"></div>
+
+    <script>
+      function getContrastYIQ(hexColor) {
+        const r = parseInt(hexColor.substr(1, 2), 16);
+        const g = parseInt(hexColor.substr(3, 2), 16);
+        const b = parseInt(hexColor.substr(5, 2), 16);
+        const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+        return yiq >= 128 ? "#000" : "#fff";
+      }
+
+      document
+        .getElementById("upload-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const file = document.getElementById("file-input").files[0];
+          if (!file) return alert("Choose a file");
+
+          const formData = new FormData();
+          formData.append("file", file);
+
+          const res = await fetch("http://localhost:5000/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          const data = await res.json();
+          const container = document.getElementById("colors");
+          container.innerHTML = "";
+
+          data.colors.forEach((c) => {
+            const div = document.createElement("div");
+            div.textContent = `${c.hex}`;
+            div.style.background = c.hex;
+            div.style.color = getContrastYIQ(c.hex);
+            div.style.margin = "10px";
+            div.style.padding = "10px";
+            div.style.border = "2px solid black";
+            container.appendChild(div);
+          });
+        });
+    </script>
+  </body>
+</html>
