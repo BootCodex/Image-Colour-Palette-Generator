@@ -23,7 +23,6 @@ def upload_image():
 
     try:
         image = Image.open(io.BytesIO(file.read())).convert('RGB')
-        # Resize to reduce number of colors (optional)
         image = image.resize((100, 100))
         pixels = np.array(image).reshape(-1, 3)
         pixels = [tuple(p) for p in pixels]
